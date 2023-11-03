@@ -2,12 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
-export class ImageService {
+export class MediaService {
   constructor(private prisma: PrismaService) {}
 
-  async getImageBufferById(id: number): Promise<Buffer | null> {
+  async getMediaBufferById(id: number): Promise<Buffer | null> {
     try {
-      const image = await this.prisma.image.findUnique({
+      const image = await this.prisma.media.findUnique({
         where: { evaluationId: id },
         select: { data: true },
       });
@@ -17,7 +17,7 @@ export class ImageService {
         return null;
       }
 
-      console.log('Retrieved image:', image);
+      console.log('Retrieved media:', image);
       return image.data;
     } catch (error) {
       console.error('Error:', error);

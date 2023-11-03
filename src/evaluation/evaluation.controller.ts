@@ -68,7 +68,7 @@ export class EvaluationController {
       return result;
     } catch (error) {
       throw new InternalServerErrorException(
-        'An error occurred while processing the image',
+        'An error occurred while processing the media',
       );
     }
   }

@@ -118,7 +118,7 @@ export class EvaluationService {
     let tmpFile: tmp.FileResult | null = null;
 
     try {
-      const imageBuffer = await this.prisma.image.findUnique({
+      const imageBuffer = await this.prisma.media.findUnique({
         where: { id: imageId },
         select: { data: true },
       });
@@ -172,7 +172,7 @@ export class EvaluationService {
     imageData: Buffer,
   ) {
     const evaluation = await this.createEvaluation(id, 'user', evaluationType);
-    const image = await this.prisma.image.create({
+    const image = await this.prisma.media.create({
       data: {
         data: imageData,
         evaluationId: evaluation.id,

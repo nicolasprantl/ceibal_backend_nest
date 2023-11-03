@@ -28,14 +28,19 @@ model Evaluation {
   type      Type
   device    Device   @relation(fields: [deviceId], references: [id])
   deviceId  Int
-  image     Image?
+  image     Media?
 }
 
-model Image {
+model Media {
   id           Int        @id @default(autoincrement())
   data         Bytes
   evaluation   Evaluation @relation(fields: [evaluationId], references: [id])
   evaluationId Int        @unique
+}
+
+model Brand {
+  id   Int    @id @default(autoincrement())
+  name String @unique
 }
 
 enum Category {
