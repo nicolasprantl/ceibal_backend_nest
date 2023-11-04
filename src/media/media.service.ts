@@ -1,26 +1,32 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class MediaService {
+  private readonly logger = new Logger(MediaService.name);
+
   constructor(private prisma: PrismaService) {}
 
-  async getMediaBufferById(id: number): Promise<Buffer | null> {
+  async getMediaById(id: number): Promise<{ data: Buffer; mimeType: string } | null> {
     try {
-      const image = await this.prisma.media.findUnique({
+      const media = await this.prisma.media.findUnique({
         where: { evaluationId: id },
-        select: { data: true },
+        select: { data: true, mimeType: true },
       });
 
-      if (!image) {
-        console.error('Image register not found id:', id);
+      if (!media) {
+        this.logger.error(`Media not found for ID: ${id}`);
         return null;
       }
 
-      console.log('Retrieved media:', image);
-      return image.data;
+      this.logger.debug(`Retrieved media for ID: ${id}`);
+
+      return {
+        data: media.data,
+        mimeType: media.mimeType,
+      };
     } catch (error) {
-      console.error('Error:', error);
+      this.logger.error(`Error retrieving media for ID: ${id}: ${error.message}`);
       return null;
     }
   }

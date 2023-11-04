@@ -18,7 +18,7 @@ import { EvaluationService } from './evaluation.service';
 import { CreateEvaluationDto } from './dto/create-evaluation.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ColorEvaluationDto } from './dto/color-evaluation.dto';
-import { UploadImageDto } from './dto/upload-image.dto';
+import { UploadMediaDto } from './dto/upload-media.dto';
 import { multerOptions } from '../config/multer.config';
 
 @Controller('evaluations')
@@ -49,21 +49,29 @@ export class EvaluationController {
     return this.evaluationService.deleteEvaluation(id);
   }
 
-  @Post('/upload-image')
+  @Post('/upload-media')
   @UseInterceptors(FileInterceptor('file', multerOptions))
-  async uploadImage(
+  async uploadMedia(
     @UploadedFile() file: Express.Multer.File,
-    @Body() uploadImageDto: UploadImageDto,
+    @Body() uploadMediaDto: UploadMediaDto,
   ) {
     if (!file) {
       throw new BadRequestException('No file uploaded');
     }
 
+    const isImage = file.mimetype.startsWith('image/');
+    const isVideo = file.mimetype.startsWith('video/');
+
+    if (!isImage && !isVideo) {
+      throw new BadRequestException('Unsupported file type');
+    }
+
     try {
-      const result = await this.evaluationService.createEvaluationWithImage(
-        Number(uploadImageDto.id),
-        uploadImageDto.evaluationType,
+      const result = await this.evaluationService.createEvaluationWithMedia(
+        Number(uploadMediaDto.id),
+        uploadMediaDto.evaluationType,
         file.buffer,
+        file.mimetype,
       );
       return result;
     } catch (error) {
@@ -82,6 +90,21 @@ export class EvaluationController {
       return await this.evaluationService.colorEvaluation(
         colorEvaluationDto.imageId,
         colorEvaluationDto.coordinates,
+        evaluationId,
+      );
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Post(':id/noise-evaluation')
+  async noiseEvaluation(
+    @Param('id') evaluationId: number,
+    @Body() colorEvaluationDto: ColorEvaluationDto,
+  ) {
+    try {
+      return await this.evaluationService.noiseEvaluation(
+        colorEvaluationDto.imageId,
         evaluationId,
       );
     } catch (error) {

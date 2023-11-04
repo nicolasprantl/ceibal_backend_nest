@@ -55,7 +55,7 @@ def calculateIndicators(Lab_img, Lab_reference):
     color_error /= COLOR_COUNT - GRAY_COUNT
     gs_error /= GRAY_COUNT
 
-    output = {'average_luminance_error': "{:.2f}".format(gs_error), 'average_color': "{:.2f}".format(color_error)}
+    output = {'desvio_grises': "{:.2f}".format(gs_error), 'desvio_color': "{:.2f}".format(color_error)}
     print(json.dumps(output))
 #     print("El error promedio de luminancia es de " + "{:.2f}".format(gs_error))
 #     print("El promedio de color " + "{:.2f}".format(color_error))
