@@ -7,7 +7,9 @@ export class MediaService {
 
   constructor(private prisma: PrismaService) {}
 
-  async getMediaById(id: number): Promise<{ data: Buffer; mimeType: string } | null> {
+  async getMediaById(
+    id: number,
+  ): Promise<{ data: Buffer; mimeType: string } | null> {
     try {
       const media = await this.prisma.media.findUnique({
         where: { evaluationId: id },
@@ -26,7 +28,9 @@ export class MediaService {
         mimeType: media.mimeType,
       };
     } catch (error) {
-      this.logger.error(`Error retrieving media for ID: ${id}: ${error.message}`);
+      this.logger.error(
+        `Error retrieving media for ID: ${id}: ${error.message}`,
+      );
       return null;
     }
   }

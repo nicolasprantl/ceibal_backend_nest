@@ -17,6 +17,7 @@ model Device {
   brand       String
   category    Category
   description String?
+  tender      String?
   evaluations Evaluation[]
 }
 

@@ -5,7 +5,7 @@ import { spawn } from 'child_process';
 import * as tmp from 'tmp';
 import * as fs from 'fs/promises';
 import { EvaluationType } from '../enums/evaluation-type.enum';
-import { PythonScriptError } from '../exception/PythonScriptError';
+import { PythonScriptError } from '../exception/python-script.error';
 
 @Injectable()
 export class EvaluationService {
