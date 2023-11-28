@@ -4,8 +4,8 @@ import { EvaluationController } from './evaluation.controller';
 import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
-  imports: [PrismaModule],
-  controllers: [EvaluationController],
-  providers: [EvaluationService],
+    imports: [PrismaModule],
+    controllers: [EvaluationController],
+    providers: [EvaluationService],
 })
 export class EvaluationModule {}

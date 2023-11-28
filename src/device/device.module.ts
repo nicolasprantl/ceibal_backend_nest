@@ -4,8 +4,8 @@ import { DeviceController } from './device.controller';
 import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
-  imports: [PrismaModule],
-  controllers: [DeviceController],
-  providers: [DeviceService],
+    imports: [PrismaModule],
+    controllers: [DeviceController],
+    providers: [DeviceService],
 })
 export class DeviceModule {}

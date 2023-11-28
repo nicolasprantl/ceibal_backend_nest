@@ -5,6 +5,6 @@ import { MediaModule } from './media/media.module';
 import { EvaluationModule } from './evaluation/evaluation.module';
 
 @Module({
-  imports: [PrismaModule, DeviceModule, MediaModule, EvaluationModule],
+    imports: [PrismaModule, DeviceModule, MediaModule, EvaluationModule],
 })
 export class AppModule {}
