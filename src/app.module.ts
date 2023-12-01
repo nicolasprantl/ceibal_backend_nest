@@ -4,6 +4,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { DeviceModule } from './device/device.module';
 import { MediaModule } from './media/media.module';
 import { EvaluationModule } from './evaluation/evaluation.module';
+import {PingController} from "./ping.controller";
 
 @Module({
     imports: [
@@ -15,5 +16,6 @@ import { EvaluationModule } from './evaluation/evaluation.module';
         MediaModule,
         EvaluationModule,
     ],
+    controllers: [PingController],
 })
 export class AppModule {}
