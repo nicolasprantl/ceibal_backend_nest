@@ -6,10 +6,14 @@ import * as tmp from 'tmp';
 import * as fs from 'fs/promises';
 import { EvaluationType } from '../enums/evaluation-type.enum';
 import { PythonScriptError } from '../exception/python-script.error';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class EvaluationService {
-    constructor(private prisma: PrismaService) {}
+    constructor(
+        private prisma: PrismaService,
+        private configService: ConfigService,
+    ) {}
     private readonly logger = new Logger(EvaluationService.name);
 
     async getEvaluations(pageQuery: string) {
@@ -141,10 +145,9 @@ export class EvaluationService {
         );
 
         const pythonColorScriptPath =
-            process.env.PYTHON_COLOR_SCRIPT_PATH || 'src/scripts/get_colors.py';
+            this.configService.get<string>('PYTHON_COLOR_SCRIPT_PATH') || 'src/scripts/get_colors.py';
         const pythonCompareScriptPath =
-            process.env.PYTHON_COMPARE_SCRIPT_PATH ||
-            'src/scripts/color_compare.py';
+            this.configService.get<string>('PYTHON_COMPARE_SCRIPT_PATH') || 'src/scripts/color_compare.py';
         let tmpFile: tmp.FileResult | null = null;
 
         try {
@@ -206,7 +209,7 @@ export class EvaluationService {
         );
 
         const pythonNoiseScriptPath =
-            process.env.PYTHON_NOISE_SCRIPT_PATH || 'src/scripts/noise.py';
+            this.configService.get<string>('PYTHON_NOISE_SCRIPT_PATH') || 'src/scripts/noise.py';
         let tmpFile: tmp.FileResult | null = null;
 
         try {
