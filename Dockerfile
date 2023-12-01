@@ -34,12 +34,11 @@ FROM node:16-slim
 WORKDIR /usr/src/app
 
 # Instalar libssl y Python en la etapa de ejecución
-# Instalar libssl, Python y libgl1-mesa-glx en la etapa de ejecución
 RUN apt-get update && \
     apt-get install -y libssl1.1 python3 python3-pip libgl1-mesa-glx && \
     pip3 install --upgrade pip && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/* \
+    rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update && apt-get install -y libgl1-mesa-glx
 
