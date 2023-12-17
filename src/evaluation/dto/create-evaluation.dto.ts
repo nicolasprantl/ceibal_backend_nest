@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsNumber, IsString, IsEnum } from 'class-validator';
-import { Type } from '@prisma/client';
+import {Type} from "../../entity/Type";
 
 export class CreateEvaluationDto {
     @IsNumber()

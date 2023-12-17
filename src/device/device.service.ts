@@ -1,5 +1,7 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Device } from '../entity/Device';
 import { CreateDeviceDto } from './dto/create-device.dto';
 import { UpdateDeviceDto } from './dto/update-device.dto';
 
@@ -7,20 +9,22 @@ import { UpdateDeviceDto } from './dto/update-device.dto';
 export class DeviceService {
     private readonly logger = new Logger(DeviceService.name);
 
-    constructor(private prisma: PrismaService) {}
+    constructor(
+        @InjectRepository(Device)
+        private deviceRepository: Repository<Device>,
+    ) {}
 
     async create(createDeviceDto: CreateDeviceDto) {
-        const device = await this.prisma.device.create({
-            data: createDeviceDto,
-        });
-        this.logger.log(`Device created with ID: ${device.id}`);
-        return device;
+        const device = this.deviceRepository.create(createDeviceDto);
+        const savedDevice = await this.deviceRepository.save(device);
+        this.logger.log(`Device created with ID: ${savedDevice.id}`);
+        return savedDevice;
     }
 
     async findAll() {
-        const devices = await this.prisma.device.findMany({
-            orderBy: {
-                createdAt: 'desc',
+        const devices = await this.deviceRepository.find({
+            order: {
+                createdAt: 'DESC',
             },
         });
         this.logger.log(`Retrieved all devices. Count: ${devices.length}`);
@@ -28,18 +32,7 @@ export class DeviceService {
     }
 
     async findOne(id: number) {
-        const device = await this.prisma.device.findUnique({
-            where: {
-                id: Number(id),
-            },
-            include: {
-                evaluations: {
-                    orderBy: {
-                        createdAt: 'desc',
-                    },
-                },
-            },
-        });
+        const device = await this.deviceRepository.findOne({ where: { id } });
         if (!device) {
             this.logger.error(`Device with ID ${id} not found`);
             throw new NotFoundException(`Device with ID ${id} not found`);
@@ -49,18 +42,26 @@ export class DeviceService {
     }
 
     async update(id: number, updateDeviceDto: UpdateDeviceDto) {
-        const device = await this.prisma.device.update({
-            where: { id },
-            data: updateDeviceDto,
+        const device = await this.deviceRepository.preload({
+            id: Number(id),
+            ...updateDeviceDto,
         });
+        if (!device) {
+            this.logger.error(`Device with ID ${id} not found`);
+            throw new NotFoundException(`Device with ID ${id} not found`);
+        }
+        await this.deviceRepository.save(device);
         this.logger.log(`Updated device with ID: ${id}`);
         return device;
     }
 
     async remove(id: number) {
-        await this.prisma.device.delete({
-            where: { id },
-        });
+        const device = await this.deviceRepository.findOne({ where: { id } });
+        if (!device) {
+            this.logger.error(`Device with ID ${id} not found`);
+            throw new NotFoundException(`Device with ID ${id} not found`);
+        }
+        await this.deviceRepository.remove(device);
         this.logger.log(`Removed device with ID: ${id}`);
     }
 }

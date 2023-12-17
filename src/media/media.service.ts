@@ -1,19 +1,24 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Media } from '../entity/Media';
 
 @Injectable()
 export class MediaService {
     private readonly logger = new Logger(MediaService.name);
 
-    constructor(private prisma: PrismaService) {}
+    constructor(
+        @InjectRepository(Media)
+        private mediaRepository: Repository<Media>,
+    ) {}
 
     async getMediaById(
         id: number,
     ): Promise<{ data: Buffer; mimeType: string } | null> {
         try {
-            const media = await this.prisma.media.findUnique({
-                where: { evaluationId: id },
-                select: { data: true, mimeType: true },
+            const media = await this.mediaRepository.findOne({
+                where: { id },
+                select: ['data', 'mimeType'],
             });
 
             if (!media) {

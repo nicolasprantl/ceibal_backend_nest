@@ -1,10 +1,10 @@
 import { IsEnum, IsNotEmpty } from 'class-validator';
-import { EvaluationType } from '../../enums/evaluation-type.enum';
+import {Type} from "../../entity/Type";
 
 export class UploadMediaDto {
     @IsNotEmpty()
     id: string;
 
-    @IsEnum(EvaluationType)
-    evaluationType: EvaluationType;
+    @IsEnum(Type)
+    evaluationType: Type;
 }
