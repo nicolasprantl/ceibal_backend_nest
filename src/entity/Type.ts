@@ -1,4 +1,3 @@
-// src/entity/Type.ts
 export enum Type {
   RESOLUTION = 'RESOLUTION',
   COLOUR = 'COLOUR',

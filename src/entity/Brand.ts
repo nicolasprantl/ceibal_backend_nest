@@ -1,4 +1,3 @@
-// src/entity/Brand.ts
 import {
   Entity,
   PrimaryGeneratedColumn,

@@ -1,4 +1,3 @@
-// src/entity/Evaluation.ts
 import {
   Entity,
   PrimaryGeneratedColumn,

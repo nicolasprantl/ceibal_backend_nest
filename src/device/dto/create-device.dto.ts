@@ -1,5 +1,5 @@
 import { IsString, IsEnum, IsOptional } from 'class-validator';
-import { Category } from '../../enums/category.enum';
+import {Category} from "../../entity/Category";
 
 export class CreateDeviceDto {
     @IsString()
