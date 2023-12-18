@@ -6,6 +6,7 @@ import {
   ManyToOne,
   OneToOne,
   JoinColumn,
+  CreateDateColumn,
 } from 'typeorm';
 import { Device } from './Device';
 import { Media } from './Media';
@@ -16,7 +17,7 @@ export class Evaluation {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @CreateDateColumn()
   createdAt: Date;
 
   @Column()
@@ -33,5 +34,5 @@ export class Evaluation {
   device: Device;
 
   @OneToOne(() => Media, media => media.evaluation, { nullable: true })
-  image: Media;
+  media: Media;
 }

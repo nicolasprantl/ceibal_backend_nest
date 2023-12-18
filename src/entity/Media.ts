@@ -1,9 +1,9 @@
-// src/entity/Media.ts
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
   OneToOne,
+  JoinColumn,
 } from 'typeorm';
 import { Evaluation } from './Evaluation';
 
@@ -12,10 +12,11 @@ export class Media {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column('blob')
+  @Column('longblob')
   data: Buffer;
 
-  @OneToOne(() => Evaluation, evaluation => evaluation.image)
+  @OneToOne(() => Evaluation, evaluation => evaluation.media)
+  @JoinColumn({ name: 'evaluationId' })
   evaluation: Evaluation;
 
   @Column({ default: 'image/jpeg' })

@@ -32,7 +32,12 @@ export class DeviceService {
     }
 
     async findOne(id: number) {
-        const device = await this.deviceRepository.findOne({ where: { id } });
+        const device = await this.deviceRepository.createQueryBuilder('device')
+            .leftJoinAndSelect('device.evaluations', 'evaluation')
+            .where('device.id = :id', { id })
+            .orderBy('evaluation.createdAt', 'DESC')
+            .getOne();
+
         if (!device) {
             this.logger.error(`Device with ID ${id} not found`);
             throw new NotFoundException(`Device with ID ${id} not found`);
