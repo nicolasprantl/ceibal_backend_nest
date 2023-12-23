@@ -53,7 +53,6 @@ RUN mkdir -p /usr/src/app/src/scripts/outputs
 
 # Instalar las dependencias del proyecto Python en la etapa de ejecución
 COPY requirements.txt ./
-COPY .env ./
 
 RUN pip3 install --no-cache-dir -r requirements.txt
 
