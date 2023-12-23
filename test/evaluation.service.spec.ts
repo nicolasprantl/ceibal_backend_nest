@@ -90,7 +90,6 @@ describe('EvaluationService', () => {
                 category: Category.LAPTOP,
                 description: 'Device description',
                 tender: 'Tender',
-
             };
             mockDeviceFindUnique.mockResolvedValue(mockDevice);
 
