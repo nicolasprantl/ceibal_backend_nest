@@ -9,20 +9,14 @@ export class MediaController {
     @Get(':id')
     async getMediaById(@Param('id') id: string, @Res() res: Response) {
         const media = await this.mediaService.getMediaById(Number(id));
-
-        if (!media) {
+        if (!media || media.length === 0) {
             return res.status(404).json({ error: 'Media not found' });
         }
-
-        const { data, mimeType } = media;
-
+        const archive = await this.mediaService.createMediaZip(media);
         res.writeHead(200, {
-            'Content-Type': mimeType,
-            'Content-Disposition': `attachment; filename="media${
-                mimeType.split('/')[1]
-            }"`,
-            'Content-Length': data.length,
+            'Content-Type': 'application/zip',
+            'Content-Disposition': `attachment; filename="media.zip"`,
         });
-        res.end(data);
+        archive.pipe(res);
     }
 }
