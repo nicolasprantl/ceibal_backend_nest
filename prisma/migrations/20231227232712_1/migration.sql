@@ -6,6 +6,7 @@ CREATE TABLE `Device` (
     `brand` VARCHAR(191) NOT NULL,
     `category` ENUM('LAPTOP', 'TABLET', 'SMARTPHONE') NOT NULL,
     `description` VARCHAR(191) NULL,
+    `tender` VARCHAR(191) NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -26,9 +27,18 @@ CREATE TABLE `Evaluation` (
 CREATE TABLE `Media` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `data` LONGBLOB NOT NULL,
+    `mimeType` VARCHAR(191) NOT NULL DEFAULT 'image/jpeg',
     `evaluationId` INTEGER NOT NULL,
 
-    UNIQUE INDEX `Media_evaluationId_key`(`evaluationId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Brand` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(191) NOT NULL,
+
+    UNIQUE INDEX `Brand_name_key`(`name`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
