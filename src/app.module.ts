@@ -5,6 +5,9 @@ import { DeviceModule } from './device/device.module';
 import { MediaModule } from './media/media.module';
 import { EvaluationModule } from './evaluation/evaluation.module';
 import {PingController} from "./ping.controller";
+import { ThresholdController } from './threshold/threshold.controller';
+import { ThresholdService } from './threshold/threshold.service';
+import { ThresholdModule } from './threshold/threshold.module';
 
 @Module({
     imports: [
@@ -15,7 +18,9 @@ import {PingController} from "./ping.controller";
         DeviceModule,
         MediaModule,
         EvaluationModule,
+        ThresholdModule,
     ],
-    controllers: [PingController],
+    controllers: [PingController, ThresholdController],
+    providers: [ThresholdService],
 })
 export class AppModule {}
