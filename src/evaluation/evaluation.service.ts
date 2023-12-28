@@ -1,20 +1,29 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { Type } from '@prisma/client';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Evaluation } from '../entity/Evaluation';
+import { Device } from '../entity/Device';
 import { spawn } from 'child_process';
 import * as tmp from 'tmp';
 import * as fs from 'fs/promises';
-import { EvaluationType } from '../enums/evaluation-type.enum';
 import { PythonScriptError } from '../exception/python-script.error';
 import { ConfigService } from '@nestjs/config';
+import {Media} from "../entity/Media";
+import {Type} from "../entity/Type";
 
 @Injectable()
 export class EvaluationService {
+    private readonly logger = new Logger(EvaluationService.name);
+
     constructor(
-        private prisma: PrismaService,
+        @InjectRepository(Evaluation)
+        private evaluationRepository: Repository<Evaluation>,
+        @InjectRepository(Device)
+        private deviceRepository: Repository<Device>,
+        @InjectRepository(Media)
+        private mediaRepository: Repository<Media>,
         private configService: ConfigService,
     ) {}
-    private readonly logger = new Logger(EvaluationService.name);
 
     async getEvaluations(pageQuery: string) {
         this.logger.log(`Fetching evaluations with page query: ${pageQuery}`);
@@ -22,9 +31,9 @@ export class EvaluationService {
         const page = Number(pageQuery) - 1;
         const recordsPerPage = 10;
         if (page === -1 || Number.isNaN(page)) {
-            return this.prisma.evaluation.findMany();
+            return this.evaluationRepository.find();
         }
-        return this.prisma.evaluation.findMany({
+        return this.evaluationRepository.find({
             skip: recordsPerPage * page,
             take: recordsPerPage,
         });
@@ -33,9 +42,9 @@ export class EvaluationService {
     async getEvaluation(id: number) {
         this.logger.log(`Fetching evaluation with ID: ${id}`);
 
-        return this.prisma.evaluation.findFirst({
+        return this.evaluationRepository.findOne({
             where: { id },
-            include: { device: true },
+            relations: ['device'],
         });
     }
 
@@ -48,52 +57,37 @@ export class EvaluationService {
             `Creating evaluation for device ID: ${deviceId}, User: ${user}, Type: ${evaluationType}`,
         );
 
-        const device = await this.prisma.device.findUnique({
-            where: { id: deviceId },
-        });
+        const device = await this.deviceRepository.findOne({ where: { id: deviceId } });
         this.logger.debug(`Device: ${JSON.stringify(device)}`);
         if (!device) {
             throw new Error('Device not found');
         }
 
-        const evaluationData = {
-            user,
-            result: {},
-            type: evaluationType,
-            device: {
-                connect: { id: deviceId },
-            },
-        };
+        const evaluationData = new Evaluation();
+        evaluationData.user = user;
+        evaluationData.result = {};
+        evaluationData.type = evaluationType as Type;
+        evaluationData.device = device;
 
-        return this.prisma.evaluation.create({
-            data: evaluationData,
-        });
+        return this.evaluationRepository.save(evaluationData);
     }
 
     async deleteEvaluation(id: number) {
         this.logger.log(`Deleting evaluation with ID: ${id}`);
 
-        return this.prisma.evaluation.delete({
-            where: { id },
-        });
+        return this.evaluationRepository.delete(id);
     }
 
     async updateEvaluation(id: number, data: any) {
         this.logger.log(`Updating evaluation with ID: ${id}`);
 
-        return this.prisma.evaluation.update({
-            where: { id },
-            data,
-        });
+        return this.evaluationRepository.update(id, data);
     }
 
     async updateEvaluationResult(id: number, result: any) {
         this.logger.log(`Updating evaluation result for ID: ${id}`);
 
-        return this.prisma.evaluation.update({
-            where: { id },
-            data: { result },
-        });
+        return this.evaluationRepository.update(id, { result });
     }
 
     private async runPythonScript(
@@ -151,7 +145,7 @@ export class EvaluationService {
         let tmpFile: tmp.FileResult | null = null;
 
         try {
-            const imageBuffer = await this.prisma.media.findUnique({
+            const imageBuffer = await this.mediaRepository.findOne({
                 where: { id: imageId },
                 select: { data: true },
             });
@@ -213,7 +207,7 @@ export class EvaluationService {
         let tmpFile: tmp.FileResult | null = null;
 
         try {
-            const videoBuffer = await this.prisma.media.findUnique({
+            const videoBuffer = await this.mediaRepository.findOne({
                 where: { id: videoId },
                 select: { data: true },
             });
@@ -250,7 +244,7 @@ export class EvaluationService {
 
     async createEvaluationWithMedia(
         id: number,
-        evaluationType: EvaluationType,
+        evaluationType: Type,
         imageData: Buffer,
         type: string,
     ) {
@@ -265,17 +259,16 @@ export class EvaluationService {
         );
         this.logger.log(`Evaluation created with ID: ${evaluation.id}`);
 
-        const image = await this.prisma.media.create({
-            data: {
-                data: imageData,
-                evaluationId: evaluation.id,
-                mimeType: type,
-            },
-        });
-        this.logger.log(`Image media created with ID: ${image.id}`);
+        const image = new Media();
+        image.data = imageData;
+        image.evaluation = evaluation;
+        image.mimeType = type;
+
+        const savedImage = await this.mediaRepository.save(image);
+        this.logger.log(`Image media created with ID: ${savedImage.id}`);
 
         return {
-            imageId: image.id,
+            imageId: savedImage.id,
             evaluationId: evaluation.id,
         };
     }
