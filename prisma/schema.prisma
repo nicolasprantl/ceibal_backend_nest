@@ -45,6 +45,12 @@ model Brand {
   name String @unique
 }
 
+model Threshold {
+  id    Int    @id @default(autoincrement())
+  name  String
+  config  Json
+}
+
 enum Category {
   LAPTOP
   TABLET

@@ -6,6 +6,10 @@ import { MediaModule } from './media/media.module';
 import { EvaluationModule } from './evaluation/evaluation.module';
 import { PingController } from './ping.controller';
 import { BrandModule } from './brand/brand.module';
+import { ThresholdController } from './threshold/threshold.controller';
+import { ThresholdService } from './threshold/threshold.service';
+import { ThresholdModule } from './threshold/threshold.module';
+import {PingController} from "./ping.controller";
 
 @Module({
     imports: [
@@ -17,7 +21,9 @@ import { BrandModule } from './brand/brand.module';
         MediaModule,
         EvaluationModule,
         BrandModule,
+        ThresholdModule
     ],
-    controllers: [PingController],
+    controllers: [PingController, ThresholdController],
+    providers: [ThresholdService],
 })
 export class AppModule {}
