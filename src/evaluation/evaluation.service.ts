@@ -145,9 +145,11 @@ export class EvaluationService {
         );
 
         const pythonColorScriptPath =
-            this.configService.get<string>('PYTHON_COLOR_SCRIPT_PATH') || 'src/scripts/get_colors.py';
+            this.configService.get<string>('PYTHON_COLOR_SCRIPT_PATH') ||
+            'src/scripts/get_colors.py';
         const pythonCompareScriptPath =
-            this.configService.get<string>('PYTHON_COMPARE_SCRIPT_PATH') || 'src/scripts/color_compare.py';
+            this.configService.get<string>('PYTHON_COMPARE_SCRIPT_PATH') ||
+            'src/scripts/color_compare.py';
         let tmpFile: tmp.FileResult | null = null;
 
         try {
@@ -209,7 +211,8 @@ export class EvaluationService {
         );
 
         const pythonNoiseScriptPath =
-            this.configService.get<string>('PYTHON_NOISE_SCRIPT_PATH') || 'src/scripts/noise.py';
+            this.configService.get<string>('PYTHON_NOISE_SCRIPT_PATH') ||
+            'src/scripts/noise.py';
         let tmpFile: tmp.FileResult | null = null;
 
         try {

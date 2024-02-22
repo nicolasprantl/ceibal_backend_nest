@@ -4,10 +4,12 @@ import { PrismaModule } from './prisma/prisma.module';
 import { DeviceModule } from './device/device.module';
 import { MediaModule } from './media/media.module';
 import { EvaluationModule } from './evaluation/evaluation.module';
-import {PingController} from "./ping.controller";
+import { PingController } from './ping.controller';
+import { BrandModule } from './brand/brand.module';
 import { ThresholdController } from './threshold/threshold.controller';
 import { ThresholdService } from './threshold/threshold.service';
 import { ThresholdModule } from './threshold/threshold.module';
+import {PingController} from "./ping.controller";
 
 @Module({
     imports: [
@@ -18,7 +20,8 @@ import { ThresholdModule } from './threshold/threshold.module';
         DeviceModule,
         MediaModule,
         EvaluationModule,
-        ThresholdModule,
+        BrandModule,
+        ThresholdModule
     ],
     controllers: [PingController, ThresholdController],
     providers: [ThresholdService],
