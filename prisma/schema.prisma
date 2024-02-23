@@ -29,7 +29,7 @@ model Evaluation {
   type      Type
   device    Device   @relation(fields: [deviceId], references: [id])
   deviceId  Int
-  image     Media?
+  media     Media[]
 }
 
 model Media {
@@ -37,7 +37,7 @@ model Media {
   data         Bytes
   evaluation   Evaluation @relation(fields: [evaluationId], references: [id])
   mimeType     String     @default("image/jpeg")
-  evaluationId Int        @unique
+  evaluationId Int
 }
 
 model Brand {

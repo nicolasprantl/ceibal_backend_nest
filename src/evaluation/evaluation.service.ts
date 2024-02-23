@@ -7,6 +7,7 @@ import * as fs from 'fs/promises';
 import { EvaluationType } from '../enums/evaluation-type.enum';
 import { PythonScriptError } from '../exception/python-script.error';
 import { ConfigService } from '@nestjs/config';
+import * as path from 'path';
 
 @Injectable()
 export class EvaluationService {
@@ -178,7 +179,38 @@ export class EvaluationService {
             ]);
 
             const parsedResult = JSON.parse(result);
-            const { lab_format, filename } = parsedResult;
+            const { lab_format, filename, image_filename } = parsedResult;
+
+            const image_filepath = path.join(
+                'src/scripts/outputs',
+                image_filename,
+            );
+            let imageMarkedBuffer;
+            try {
+                imageMarkedBuffer = await fs.readFile(image_filepath);
+            } catch (error) {
+                this.logger.error(`Error reading image file: ${error.message}`);
+                throw error;
+            }
+            this.logger.debug(parsedResult);
+            this.logger.log('Creating new media record...');
+            let image;
+            try {
+                image = await this.prisma.media.create({
+                    data: {
+                        data: imageMarkedBuffer,
+                        evaluationId: Number(evaluationId),
+                        mimeType: 'image/jpg',
+                    },
+                });
+            } catch (error) {
+                this.logger.error(
+                    `Error creating media record: ${error.message}`,
+                );
+                throw error;
+            }
+            this.logger.log(`New media record created with ID: ${image.id}`);
+
             const comparisonResult = await this.runPythonScript(
                 pythonCompareScriptPath,
                 [filename],

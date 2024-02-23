@@ -276,7 +276,6 @@ def main(image_path, corners):
     colorSamples = pickColors(iblur, midpoints)
     lab_format = formatLab(iblur, midpoints)
 
-
     if not os.path.exists(BASE_OUTPUT_DIR):
         os.makedirs(BASE_OUTPUT_DIR)
 
@@ -286,7 +285,11 @@ def main(image_path, corners):
     with open(filepath, "w") as file:
         file.write(lab_format)
 
-    output = {'lab_format': lab_format, 'filename': filename}
+    image_filename = basename.split('.')[0] + "_marked.jpg"
+    image_filepath = os.path.join(BASE_OUTPUT_DIR, image_filename)
+    cv.imwrite(image_filepath, cv.cvtColor(imagen_dut_rgb_copy, cv.COLOR_RGB2BGR))
+
+    output = {'lab_format': lab_format, 'filename': filename, 'image_filename': image_filename}
     print(json.dumps(output))
 
 if __name__ == "__main__":
