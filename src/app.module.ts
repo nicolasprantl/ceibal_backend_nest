@@ -9,7 +9,6 @@ import { BrandModule } from './brand/brand.module';
 import { ThresholdController } from './threshold/threshold.controller';
 import { ThresholdService } from './threshold/threshold.service';
 import { ThresholdModule } from './threshold/threshold.module';
-import {PingController} from "./ping.controller";
 
 @Module({
     imports: [
