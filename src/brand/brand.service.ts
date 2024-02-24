@@ -20,13 +20,23 @@ export class BrandService {
         return brand;
     }
 
-    async brands(): Promise<string[]> {
+    // async brands(): Promise<string[]> {
+    //     const brands = await this.prisma.brand.findMany({
+    //         select: {
+    //             name: true,
+    //             id: true,
+    //         },
+    //     });
+    //     return brands.map((brand) => brand.name);
+    // }
+
+    async brands() {
         const brands = await this.prisma.brand.findMany({
-            select: {
-                name: true,
+            orderBy: {
+                id: 'desc',
             },
         });
-        return brands.map((brand) => brand.name);
+        return brands;
     }
 
     async createBrand(data: Prisma.BrandCreateInput): Promise<Brand> {
