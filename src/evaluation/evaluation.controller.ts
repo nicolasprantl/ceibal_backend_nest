@@ -31,8 +31,8 @@ export class EvaluationController {
     }
 
     @Get(':id')
-    getEvaluation(@Param('id') id: number) {
-        return this.evaluationService.getEvaluation(id);
+    getEvaluation(@Param('id') id: string) {
+        return this.evaluationService.getEvaluation(parseInt(id));
     }
 
     @Post()
@@ -45,8 +45,8 @@ export class EvaluationController {
     }
 
     @Delete(':id')
-    deleteEvaluation(@Param('id') id: number) {
-        return this.evaluationService.deleteEvaluation(id);
+    deleteEvaluation(@Param('id') id: string) {
+        return this.evaluationService.deleteEvaluation(parseInt(id));
     }
 
     @Post('/upload-media')
@@ -110,6 +110,24 @@ export class EvaluationController {
             return await this.evaluationService.noiseEvaluation(
                 colorEvaluationDto.imageId,
                 evaluationId,
+            );
+        } catch (error) {
+            throw new HttpException(
+                error.message,
+                HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+        }
+    }
+
+    @Post(':id/resolution-evaluation')
+    async resolutionEvaluation(
+        @Param('id') evaluationId: number,
+        @Body() formData: any,
+    ) {
+        try {
+            return await this.evaluationService.resolutionEvaluation(
+                evaluationId,
+                formData,
             );
         } catch (error) {
             throw new HttpException(
