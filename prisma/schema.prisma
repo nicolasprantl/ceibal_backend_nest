@@ -18,6 +18,7 @@ model Device {
   category    Category
   description String?
   tender      String?
+  user        String 
   evaluations Evaluation[]
 }
 
