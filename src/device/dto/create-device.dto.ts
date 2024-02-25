@@ -18,4 +18,7 @@ export class CreateDeviceDto {
     @IsString()
     @IsOptional()
     readonly tender?: string;
+
+    @IsString()
+    readonly user: string;
 }
