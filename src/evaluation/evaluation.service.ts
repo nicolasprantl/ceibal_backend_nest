@@ -325,8 +325,8 @@ export class EvaluationService {
         );
         
         // H for horizontal, V for vertical
-        let { T1_H, T2_H, N_H, D_H, T1_V, T2_V, N_V, D_V  } = formData;
-
+        let { T1_H, T2_H, N_H, D_H, T1_V, T2_V, N_V, D_V  } = formData.formData;
+  
         // Convert each variable to a number
         T1_H = parseFloat(T1_H);
         T2_H = parseFloat(T2_H);
@@ -354,7 +354,7 @@ export class EvaluationService {
                             angulo_vision_vertical,
                             megapixeles_efectivos,
                             FOV,
-                            base_values: {...formData}}
+                            base_values: {...formData.formData}}
 
             await this.updateEvaluationResult(
                 Number(evaluationId),
