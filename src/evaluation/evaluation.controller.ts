@@ -12,14 +12,16 @@ import {
     Post,
     Query,
     UploadedFile,
+    UploadedFiles,
     UseInterceptors,
 } from '@nestjs/common';
 import { EvaluationService } from './evaluation.service';
 import { CreateEvaluationDto } from './dto/create-evaluation.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { ColorEvaluationDto } from './dto/color-evaluation.dto';
 import { UploadMediaDto } from './dto/upload-media.dto';
 import { multerOptions } from '../config/multer.config';
+import multer from 'multer';
 
 @Controller('evaluations')
 export class EvaluationController {
@@ -73,6 +75,31 @@ export class EvaluationController {
                     uploadMediaDto.evaluationType,
                     file.buffer,
                     file.mimetype,
+                );
+            return result;
+        } catch (error) {
+            throw new InternalServerErrorException(
+                'An error occurred while processing the media',
+            );
+        }
+    }
+
+    @Post('/upload-multiple-media')
+    @UseInterceptors(FilesInterceptor('files', 2, multerOptions))
+    async uploadMultipleMedia(
+        @UploadedFiles() files: Array<Express.Multer.File>,
+        @Body() uploadMediaDto: UploadMediaDto,
+    ) {
+        if (files.length == 0) {
+            throw new BadRequestException('No file uploaded');
+        }
+        
+        try {
+            const result =
+                await this.evaluationService.createEvaluationWithMultipleMedia(
+                    Number(uploadMediaDto.id),
+                    uploadMediaDto.evaluationType,
+                    files,
                 );
             return result;
         } catch (error) {

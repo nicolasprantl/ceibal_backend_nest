@@ -345,6 +345,47 @@ export class EvaluationService {
         };
     }
 
+    async createEvaluationWithMultipleMedia(
+        id: number,
+        evaluationType: EvaluationType,
+        files : Array<Express.Multer.File>,
+    ) {
+        
+        this.logger.log(
+            `Creating evaluation with multiple media type ${files[0].mimetype} for device ID: ${id} and evaluation type: ${evaluationType}`,
+        );
+
+        const evaluation = await this.createEvaluation(
+            id,
+            'user',
+            evaluationType,
+        );
+        this.logger.log(`Evaluation created with ID: ${evaluation.id}`);
+        
+        const images = [];
+        
+        await Promise.all(files.map(async file => {
+            try {
+              const image = await this.prisma.media.create({
+                data: {
+                    data: file.buffer,
+                    evaluationId: evaluation.id,
+                    mimeType: file.mimetype,
+                },
+              });
+              this.logger.log(`Image media created with ID: ${image.id}`);
+              images.push(image);
+            } catch (error) {
+                throw new Error(`Error creating image media record: ${error.message}`);
+            }
+          }));
+
+        return {
+            images: images,
+            evaluationId: evaluation.id,
+        };
+    }
+
     radiansToDegrees(radians: number): number {
         return radians * (180 / Math.PI);
     }
