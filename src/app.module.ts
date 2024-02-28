@@ -20,7 +20,7 @@ import { ThresholdModule } from './threshold/threshold.module';
         MediaModule,
         EvaluationModule,
         BrandModule,
-        ThresholdModule
+        ThresholdModule,
     ],
     controllers: [PingController, ThresholdController],
     providers: [ThresholdService],

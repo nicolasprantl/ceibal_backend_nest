@@ -6,9 +6,7 @@ import { UpdateThresholdDto } from './dto/update-threshold.dto';
 
 @Injectable()
 export class ThresholdService {
-    constructor(
-        private prisma: PrismaService
-    ){}
+    constructor(private prisma: PrismaService) {}
 
     private readonly logger = new Logger(ThresholdService.name);
 

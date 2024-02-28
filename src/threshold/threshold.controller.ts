@@ -1,4 +1,5 @@
-import { Controller,
+import {
+    Controller,
     Get,
     Post,
     Body,
@@ -30,7 +31,10 @@ export class ThresholdController {
     }
 
     @Patch(':id')
-    update(@Param('id') id: string, @Body() updateThresholdDto: UpdateThresholdDto) {
+    update(
+        @Param('id') id: string,
+        @Body() updateThresholdDto: UpdateThresholdDto,
+    ) {
         return this.thresholdService.updateThreshold(+id, updateThresholdDto);
     }
 
