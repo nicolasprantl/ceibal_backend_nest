@@ -11,11 +11,11 @@ export class MediaService {
 
     async getMediaById(
         id: number,
-    ): Promise<{ id: number; data: Buffer; mimeType: string }[] | null> {
+    ): Promise<{ id: number; data: Buffer; mimeType: string, name: string }[] | null> {
         try {
             const media = await this.prisma.media.findMany({
                 where: { evaluationId: id },
-                select: { id: true, data: true, mimeType: true },
+                select: { id: true, data: true, mimeType: true, name: true },
             });
 
             if (!media || media.length === 0) {
@@ -29,6 +29,7 @@ export class MediaService {
                 id: m.id,
                 data: m.data,
                 mimeType: m.mimeType,
+                name: m.name,
             }));
         } catch (error) {
             this.logger.error(
@@ -39,14 +40,14 @@ export class MediaService {
     }
 
     async createMediaZip(
-        media: { id: number; data: Buffer; mimeType: string }[],
+        media: { id: number; data: Buffer; mimeType: string, name: string }[],
     ): Promise<Readable> {
         const archive = archiver('zip');
 
         for (const file of media) {
-            const { id, data, mimeType } = file;
+            const { id, data, mimeType, name } = file;
             archive.append(data, {
-                name: `media_${id}.${mimeType.split('/')[1]}`,
+                name: `media_${name}_${id}.${mimeType.split('/')[1]}`,
             });
         }
 

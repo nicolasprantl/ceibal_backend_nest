@@ -194,10 +194,10 @@ export class EvaluationService {
             }
             this.logger.debug(parsedResult);
             this.logger.log('Creating new media record...');
-            let image;
             try {
-                image = await this.prisma.media.create({
+                await this.prisma.media.create({
                     data: {
+                        name: "marked_image",
                         data: imageMarkedBuffer,
                         evaluationId: Number(evaluationId),
                         mimeType: 'image/jpg',
@@ -209,7 +209,6 @@ export class EvaluationService {
                 );
                 throw error;
             }
-            this.logger.log(`New media record created with ID: ${image.id}`);
 
             const comparisonResult = await this.runPythonScript(
                 pythonCompareScriptPath,
@@ -218,7 +217,7 @@ export class EvaluationService {
             const parsedComparisonResult = JSON.parse(comparisonResult);
             const { desvio_grises, desvio_color } = parsedComparisonResult;
             this.logger.debug(
-                `Evaluation result: luminancia ${desvio_grises}, color ${desvio_color} and evaluation ID: ${evaluationId}`,
+                `Evaluation result: luminancia ${desvio_grises}, color ${desvio_color}, output_file ${image_filename}, and evaluation ID: ${evaluationId}`,
             );
             await this.updateEvaluationResult(
                 Number(evaluationId),
@@ -265,15 +264,45 @@ export class EvaluationService {
             ]);
 
             const parsedResult = JSON.parse(result);
-            const { nivel_de_ruido, luminancia } = parsedResult;
+            const { nivel_de_ruido, luminancia, output_filename } = parsedResult;
             await this.updateEvaluationResult(
                 Number(evaluationId),
                 parsedResult,
             );
             this.logger.debug(
-                `Evaluation result: ruido ${nivel_de_ruido}, luminancia ${luminancia} and evaluation ID: ${evaluationId}`,
+                `Evaluation result: ruido ${nivel_de_ruido}, luminancia ${luminancia}, output_file ${output_filename} and evaluation ID: ${evaluationId}`,
             );
             tmpFile.removeCallback();
+
+            const image_filepath = path.join(
+                'src/scripts/outputs',
+                output_filename,
+            );
+            let imageMarkedBuffer;
+            try {
+                imageMarkedBuffer = await fs.readFile(image_filepath);
+            } catch (error) {
+                this.logger.error(`Error reading image file: ${error.message}`);
+                throw error;
+            }
+            this.logger.debug(parsedResult);
+            this.logger.log('Creating new media record...');
+            try {
+                await this.prisma.media.create({
+                    data: {
+                        name: "noise_image",
+                        data: imageMarkedBuffer,
+                        evaluationId: Number(evaluationId),
+                        mimeType: 'image/jpg',
+                    },
+                });
+            } catch (error) {
+                this.logger.error(
+                    `Error creating media record: ${error.message}`,
+                );
+                throw error;
+            }
+
             return { nivel_de_ruido, luminancia };
         } catch (error) {
             if (tmpFile) {
@@ -302,6 +331,7 @@ export class EvaluationService {
 
         const image = await this.prisma.media.create({
             data: {
+                name: evaluationType.toString().toLowerCase(),
                 data: imageData,
                 evaluationId: evaluation.id,
                 mimeType: type,
@@ -317,16 +347,19 @@ export class EvaluationService {
 
     radiansToDegrees(radians: number): number {
         return radians * (180 / Math.PI);
-      }
+    }
 
-    async resolutionEvaluation(evaluationId: number, formData: any): Promise<any> {
+    async resolutionEvaluation(
+        evaluationId: number,
+        formData: any,
+    ): Promise<any> {
         this.logger.log(
             `Starting resolution evaluation for evaluation ID: ${evaluationId}`,
         );
-        
+
         // H for horizontal, V for vertical
-        let { T1_H, T2_H, N_H, D_H, T1_V, T2_V, N_V, D_V  } = formData.formData;
-  
+        let { T1_H, T2_H, N_H, D_H, T1_V, T2_V, N_V, D_V } = formData.formData;
+
         // Convert each variable to a number
         T1_H = parseFloat(T1_H);
         T2_H = parseFloat(T2_H);
@@ -338,34 +371,48 @@ export class EvaluationService {
         D_V = parseFloat(D_V);
 
         try {
-            const resolucion_efectiva_horizontal = (40*N_H*T1_H)/T2_H 
-            const resolucion_efectiva_vertical = (40*N_V*T1_V)/T2_V 
+            const resolucion_efectiva_horizontal = (40 * N_H * T1_H) / T2_H;
+            const resolucion_efectiva_vertical = (40 * N_V * T1_V) / T2_V;
 
-            const angulo_vision_horizontal = 2*this.radiansToDegrees(Math.atan(0.5*22.2*T1_H/T2_H/D_H))
-            const angulo_vision_vertical = 2*this.radiansToDegrees(Math.atan(0.5*22.2*T1_V/T2_V/D_V))
+            const angulo_vision_horizontal =
+                2 *
+                this.radiansToDegrees(
+                    Math.atan((0.5 * 22.2 * T1_H) / T2_H / D_H),
+                );
+            const angulo_vision_vertical =
+                2 *
+                this.radiansToDegrees(
+                    Math.atan((0.5 * 22.2 * T1_V) / T2_V / D_V),
+                );
 
-            const megapixeles_efectivos = (resolucion_efectiva_vertical * resolucion_efectiva_horizontal)/1000000
+            const megapixeles_efectivos =
+                (resolucion_efectiva_vertical *
+                    resolucion_efectiva_horizontal) /
+                1000000;
 
-            const FOV = `${Math.round(angulo_vision_horizontal)}° x ${Math.round(angulo_vision_vertical)}°`
-            
-            const result = {resolucion_efectiva_horizontal, 
-                            resolucion_efectiva_vertical, 
-                            angulo_vision_horizontal,
-                            angulo_vision_vertical,
-                            megapixeles_efectivos,
-                            FOV,
-                            base_values: {...formData.formData}}
+            const FOV = `${Math.round(
+                angulo_vision_horizontal,
+            )}° x ${Math.round(angulo_vision_vertical)}°`;
 
-            await this.updateEvaluationResult(
-                Number(evaluationId),
-                result,
-            );
+            const result = {
+                resolucion_efectiva_horizontal,
+                resolucion_efectiva_vertical,
+                angulo_vision_horizontal,
+                angulo_vision_vertical,
+                megapixeles_efectivos,
+                FOV,
+                base_values: { ...formData.formData },
+            };
+
+            await this.updateEvaluationResult(Number(evaluationId), result);
             this.logger.debug(
                 `Evaluation result: resolucion efectiva horizontal: ${resolucion_efectiva_horizontal}, resolucion efectiva vertical: ${resolucion_efectiva_vertical}, angulo de vision horizontal: ${angulo_vision_horizontal}, angulo de vision vertical: ${angulo_vision_vertical}, megapixeles efectivos: ${megapixeles_efectivos}, FOV: ${FOV} and evaluation ID: ${evaluationId}`,
             );
-            return result
+            return result;
         } catch (error) {
-            throw new Error(`Error during resolution evaluation: ${error.message}`);
+            throw new Error(
+                `Error during resolution evaluation: ${error.message}`,
+            );
         }
     }
 }

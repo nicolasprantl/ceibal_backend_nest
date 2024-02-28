@@ -16,13 +16,6 @@ import numpy as np
 
 BASE_OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "outputs")
 
-# los clicks del usuario
-# marcas_imagen = []
-
-
-# def onMouse(event, x, y, flags, param):
-#     if event == cv.EVENT_LBUTTONDOWN:
-#         marcas_imagen.append((x,y))
 
 def selectFile(file_path):
     return file_path
@@ -64,45 +57,6 @@ def getMidpoints( coordinates ):
         ret.append(
             interpolatePoints( coordinates[i], coordinates[i+1], 2 )[1])
     return ret
-
-
-
-# def inputCorners(image_rgb):
-#     """Mostrar imagen, permitir que el usuario haga clic en 4 coordenadas y retornar la lista de coordenadas.
-#     La imagen proporcionada se modificará con las marcas."""
-#
-#     marcas_imagen = []
-#
-#     def onMouse(event, x, y, flags, param):
-#         if event == cv.EVENT_LBUTTONDOWN:
-#             marcas_imagen.append((x, y))
-#             cv.drawMarker(image_rgb, (x, y), color=(0, 0, 255), markerType=cv.MARKER_TILTED_CROSS,
-#                           markerSize=20, thickness=2)
-#             cv.imshow("Select", image_rgb)
-#
-#     cv.imshow("Select", image_rgb)
-#     cv.namedWindow('Select')
-#     cv.setMouseCallback('Select', onMouse)
-#
-#     while True:
-#         if len(marcas_imagen) == 4:
-#             confirm = messagebox.askyesno("Confirmación", "¿Deseas confirmar la selección de esquinas?")
-#             if confirm:
-#                 break
-#             else:
-#                 # Eliminar las marcas anteriores
-#                 cv.destroyAllWindows()
-#                 sys.exit(0)
-#
-#         key = cv.waitKey(10)
-#         if key == 27:  # Esc key
-#             cv.destroyAllWindows()
-#             sys.exit(0)
-#
-#     cv.destroyAllWindows()
-#     print(marcas_imagen)
-#     return marcas_imagen
-
 
 
 def get1345( inputList ):

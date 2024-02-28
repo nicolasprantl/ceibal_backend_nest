@@ -18,7 +18,7 @@ model Device {
   category    Category
   description String?
   tender      String?
-  user        String 
+  user        String
   evaluations Evaluation[]
 }
 
@@ -35,6 +35,7 @@ model Evaluation {
 
 model Media {
   id           Int        @id @default(autoincrement())
+  name         String     @default("")
   data         Bytes
   evaluation   Evaluation @relation(fields: [evaluationId], references: [id])
   mimeType     String     @default("image/jpeg")
@@ -47,9 +48,9 @@ model Brand {
 }
 
 model Threshold {
-  id    Int    @id @default(autoincrement())
-  name  String
-  config  Json
+  id     Int    @id @default(autoincrement())
+  name   String
+  config Json
 }
 
 enum Category {
