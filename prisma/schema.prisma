@@ -35,7 +35,7 @@ model Evaluation {
 
 model Media {
   id           Int        @id @default(autoincrement())
-  name         String     @default("media")
+  name         String     @default("")
   data         Bytes
   evaluation   Evaluation @relation(fields: [evaluationId], references: [id])
   mimeType     String     @default("image/jpeg")
