@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { seedDatabase as seedDatabase } from '../prisma/seed';
+import { seedDatabase as seedDatabase } from './seed';
 
 async function bootstrap() {
     const logger = new Logger('Bootstrap');
