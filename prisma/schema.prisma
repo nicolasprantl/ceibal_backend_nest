@@ -28,7 +28,7 @@ model Evaluation {
   user      String
   result    Json
   type      Type
-  device    Device   @relation(fields: [deviceId], references: [id])
+  device    Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
   deviceId  Int
   media     Media[]
 }
@@ -37,7 +37,7 @@ model Media {
   id           Int        @id @default(autoincrement())
   name         String     @default("")
   data         Bytes
-  evaluation   Evaluation @relation(fields: [evaluationId], references: [id])
+  evaluation   Evaluation @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
   mimeType     String     @default("image/jpeg")
   evaluationId Int
 }
