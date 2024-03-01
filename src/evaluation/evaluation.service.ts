@@ -88,6 +88,17 @@ export class EvaluationService {
         });
     }
 
+    async updateUserInEvaluation(id: number, user: string) {
+        this.logger.log(`Updating user in evaluation with ID: ${id}`);
+
+        return this.prisma.evaluation.update({
+            where: { id },
+            data: {
+                user: user,
+              },
+        });
+    }
+
     async updateEvaluationResult(id: number, result: any) {
         this.logger.log(`Updating evaluation result for ID: ${id}`);
 
@@ -140,6 +151,7 @@ export class EvaluationService {
         imageId: number,
         coordinates: { x: number; y: number }[],
         evaluationId: number,
+        user: string
     ): Promise<any> {
         this.logger.log(
             `Starting color evaluation for image ID: ${imageId} and evaluation ID: ${evaluationId}`,
@@ -224,6 +236,11 @@ export class EvaluationService {
                 parsedComparisonResult,
             );
 
+            await this.updateUserInEvaluation(
+                Number(evaluationId),
+                user
+            )
+
             tmpFile.removeCallback();
             return {
                 lab_format,
@@ -236,7 +253,7 @@ export class EvaluationService {
         }
     }
 
-    async noiseEvaluation(videoId: number, evaluationId: number): Promise<any> {
+    async noiseEvaluation(videoId: number, evaluationId: number, user: string): Promise<any> {
         this.logger.log(
             `Starting noise evaluation for video ID: ${videoId} and evaluation ID: ${evaluationId}`,
         );
@@ -306,6 +323,11 @@ export class EvaluationService {
                 throw error;
             }
 
+            await this.updateUserInEvaluation(
+                Number(evaluationId),
+                user
+            )
+
             return { nivel_de_ruido, luminancia };
         } catch (error) {
             if (tmpFile) {
@@ -371,6 +393,7 @@ export class EvaluationService {
                 try {
                     const image = await this.prisma.media.create({
                         data: {
+                            name: evaluationType.toString().toLowerCase(),
                             data: file.buffer,
                             evaluationId: evaluation.id,
                             mimeType: file.mimetype,
@@ -391,6 +414,8 @@ export class EvaluationService {
             evaluationId: evaluation.id,
         };
     }
+
+    
 
     radiansToDegrees(radians: number): number {
         return radians * (180 / Math.PI);
@@ -455,6 +480,12 @@ export class EvaluationService {
             this.logger.debug(
                 `Evaluation result: resolucion efectiva horizontal: ${resolucion_efectiva_horizontal}, resolucion efectiva vertical: ${resolucion_efectiva_vertical}, angulo de vision horizontal: ${angulo_vision_horizontal}, angulo de vision vertical: ${angulo_vision_vertical}, megapixeles efectivos: ${megapixeles_efectivos}, FOV: ${FOV} and evaluation ID: ${evaluationId}`,
             );
+
+            await this.updateUserInEvaluation(
+                Number(evaluationId),
+                formData.user
+            )
+            
             return result;
         } catch (error) {
             throw new Error(

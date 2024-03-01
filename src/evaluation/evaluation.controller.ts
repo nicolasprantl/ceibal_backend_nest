@@ -119,6 +119,7 @@ export class EvaluationController {
                 colorEvaluationDto.imageId,
                 colorEvaluationDto.coordinates,
                 evaluationId,
+                colorEvaluationDto.user
             );
         } catch (error) {
             throw new HttpException(
@@ -137,6 +138,7 @@ export class EvaluationController {
             return await this.evaluationService.noiseEvaluation(
                 colorEvaluationDto.imageId,
                 evaluationId,
+                colorEvaluationDto.user
             );
         } catch (error) {
             throw new HttpException(

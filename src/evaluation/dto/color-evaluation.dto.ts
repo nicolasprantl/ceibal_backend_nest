@@ -20,4 +20,6 @@ export class ColorEvaluationDto {
     @ValidateNested({ each: true })
     @Type(() => CoordinateDto)
     coordinates: CoordinateDto[];
+
+    readonly user: string;
 }
