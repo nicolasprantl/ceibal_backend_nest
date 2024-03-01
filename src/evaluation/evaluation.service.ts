@@ -197,7 +197,7 @@ export class EvaluationService {
             try {
                 await this.prisma.media.create({
                     data: {
-                        name: "marked_image",
+                        name: 'marked_image',
                         data: imageMarkedBuffer,
                         evaluationId: Number(evaluationId),
                         mimeType: 'image/jpg',
@@ -264,13 +264,16 @@ export class EvaluationService {
             ]);
 
             const parsedResult = JSON.parse(result);
-            const { nivel_de_ruido, luminancia, output_filename } = parsedResult;
+            const { nivel_de_ruido, luminancia, output_filename } =
+                parsedResult;
+            const snr = 20 * Math.log10(luminancia / nivel_de_ruido);
+            parsedResult.snr = snr;
             await this.updateEvaluationResult(
                 Number(evaluationId),
                 parsedResult,
             );
             this.logger.debug(
-                `Evaluation result: ruido ${nivel_de_ruido}, luminancia ${luminancia}, output_file ${output_filename} and evaluation ID: ${evaluationId}`,
+                `Evaluation result: ruido ${nivel_de_ruido}, luminancia ${luminancia},snr ${snr}, output_file ${output_filename} and evaluation ID: ${evaluationId}`,
             );
             tmpFile.removeCallback();
 
@@ -290,7 +293,7 @@ export class EvaluationService {
             try {
                 await this.prisma.media.create({
                     data: {
-                        name: "noise_image",
+                        name: 'noise_image',
                         data: imageMarkedBuffer,
                         evaluationId: Number(evaluationId),
                         mimeType: 'image/jpg',
@@ -348,9 +351,8 @@ export class EvaluationService {
     async createEvaluationWithMultipleMedia(
         id: number,
         evaluationType: EvaluationType,
-        files : Array<Express.Multer.File>,
+        files: Array<Express.Multer.File>,
     ) {
-        
         this.logger.log(
             `Creating evaluation with multiple media type ${files[0].mimetype} for device ID: ${id} and evaluation type: ${evaluationType}`,
         );
@@ -361,24 +363,28 @@ export class EvaluationService {
             evaluationType,
         );
         this.logger.log(`Evaluation created with ID: ${evaluation.id}`);
-        
+
         const images = [];
-        
-        await Promise.all(files.map(async file => {
-            try {
-              const image = await this.prisma.media.create({
-                data: {
-                    data: file.buffer,
-                    evaluationId: evaluation.id,
-                    mimeType: file.mimetype,
-                },
-              });
-              this.logger.log(`Image media created with ID: ${image.id}`);
-              images.push(image);
-            } catch (error) {
-                throw new Error(`Error creating image media record: ${error.message}`);
-            }
-          }));
+
+        await Promise.all(
+            files.map(async (file) => {
+                try {
+                    const image = await this.prisma.media.create({
+                        data: {
+                            data: file.buffer,
+                            evaluationId: evaluation.id,
+                            mimeType: file.mimetype,
+                        },
+                    });
+                    this.logger.log(`Image media created with ID: ${image.id}`);
+                    images.push(image);
+                } catch (error) {
+                    throw new Error(
+                        `Error creating image media record: ${error.message}`,
+                    );
+                }
+            }),
+        );
 
         return {
             images: images,
